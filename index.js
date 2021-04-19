@@ -85,7 +85,6 @@ const DrawElem = () => {
         if (col < colLength && image[row][col + 1] === currentColor)
           stack.push([row, col + 1]);
 
-        // Set the color
         image[row][col] = newColor;
       }
 
