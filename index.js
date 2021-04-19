@@ -62,8 +62,7 @@ const DrawElem = () => {
     };
 
     // 4. fill
-
-    var floodFill = function (image, sr, sc, newColor) {
+    const floodFill = function (image, sr, sc, newColor) {
       const currentColor = image[sr][sc];
       if (currentColor === newColor) return image;
 
