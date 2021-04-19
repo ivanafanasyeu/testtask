@@ -29582,23 +29582,23 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 const Grid2d = (arr, key) => {
   return /*#__PURE__*/_react.default.createElement("section", {
     style: {
-      border: '1px solid black',
-      width: 'fit-content'
+      border: "1px solid black",
+      width: "fit-content"
     }
   }, arr.map((r, i) => {
     return /*#__PURE__*/_react.default.createElement("div", {
       key: `${key}_row_${r}${i}`,
       style: {
-        display: 'flex'
+        display: "flex"
       }
     }, r.map((c, i) => /*#__PURE__*/_react.default.createElement("div", {
       key: `${key}_col_${r}${i}`,
       style: {
-        width: '1rem',
-        height: '1rem',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
+        width: "1rem",
+        height: "1rem",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
       }
     }, c)));
   }));
@@ -29611,87 +29611,85 @@ const DrawElem = () => {
   const [step3, setStep3] = (0, _react.useState)(undefined);
   const [step4, setStep4] = (0, _react.useState)(undefined);
   (0, _react.useEffect)(() => {
-    // 1. Создаём canvas
-    const canvas = (rows, cols) => new Array(cols).fill('').map((o, i) => new Array(rows).fill('')); // 2. Функция построения линии
+    const copy = arr => JSON.parse(JSON.stringify(arr)); // 1. Создаём canvas
+
+
+    const canvas = (rows, cols) => new Array(cols).fill("").map((o, i) => new Array(rows).fill("")); // 2. Функция построения линии
 
 
     const line = (x1, y1, x2, y2) => {
       if (y1 === y2) {
         for (let i = x1; i <= x2; i++) {
-          c[y1 - 1][i - 1] = 'x';
+          c[y1 - 1][i - 1] = "x";
         }
       } else {
         for (let i = y1; i <= y2; i++) {
-          c[i - 1][x1 - 1] = 'x';
+          c[i - 1][x1 - 1] = "x";
         }
       }
     }; // 3. Функция построения прямоугольника
 
 
     const rectangle = (x1, y1, x2, y2) => {
-      for (let i = x1; i <= x2 - 1; i++) {
-        c[y1 - 1][i - 1] = 'x';
-        c[y2 - 1][i - 1] = 'x';
-      }
-
-      for (let i = y1; i <= y2; i++) {
-        c[i - 1][x1 - 1] = 'x';
-        c[i - 1][x2 - 1] = 'x';
-      }
+      line(x1, y1, x2, y1);
+      line(x2, y1, x2, y2);
+      line(x1, y1, x1, y2);
+      line(x1, y2, x2, y2);
     }; // 4. fill
 
 
-    const fill = (x, y, color, W, H) => {
-      if (x - 1 >= 0 && x - 1 < W && y - 1 >= 0 && y - 1 < H && c[y - 1][x - 1] !== 'x' && c[y - 1][x - 1] !== color) {
-        c[y - 1][x - 1] = color;
-        fill(x + 1, y, color, W, H, c);
-        fill(x - 1, y, color, W, H, c);
-        fill(x, y + 1, color, W, H, c);
-        fill(x, y - 1, color, W, H, c);
-      }
-    };
+    var floodFill = function (image, sr, sc, newColor) {
+      const currentColor = image[sr][sc];
+      if (currentColor === newColor) return image;
+      const rowLength = image.length - 1;
+      const colLength = image[0].length - 1;
+      let stack = [[sr, sc]];
 
-    const copy = arr => JSON.parse(JSON.stringify(arr));
+      while (stack.length !== 0) {
+        let curr = stack.pop();
+        let [row, col] = curr;
+        if (row > 0 && image[row - 1][col] === currentColor) stack.push([row - 1, col]);
+        if (row < rowLength && image[row + 1][col] === currentColor) stack.push([row + 1, col]);
+        if (col > 0 && image[row][col - 1] === currentColor) stack.push([row, col - 1]);
+        if (col < colLength && image[row][col + 1] === currentColor) stack.push([row, col + 1]); // Set the color
+
+        image[row][col] = newColor;
+      }
+
+      return image;
+    };
 
     const c = canvas(20, 4);
     line(1, 2, 6, 2);
-    console.log(copy(c));
     setStep1(copy(c));
     line(6, 3, 6, 4, copy(c));
-    console.log(copy(c));
     setStep2(copy(c));
     rectangle(16, 1, 20, 3);
-    console.log(copy(c));
     setStep3(copy(c));
-    fill(10, 3, 'o', 20, 4);
-    console.log(copy(c));
-    setStep4(copy(c)); // const c = canvas(230, 100);
+    floodFill(c, 3, 10, "o");
+    setStep4(copy(c)); // SECOND:
+    // const c = canvas(230, 100);
     // line(10, 20, 60, 20);
-    // console.log(copy(c));
     // setStep1(copy(c));
     // line(60, 30, 60, 50, copy(c));
-    // console.log(copy(c));
     // setStep2(copy(c));
-    // console.log(copy(c));
     // rectangle(60, 10, 200, 30);
-    // console.log(copy(c));
     // setStep3(copy(c));
-    // fill(120, 35, 'o', 230, 100);
-    // console.log(copy(c));
+    // floodFill(c, 30, 100, "0");
     // setStep4(copy(c));
   }, []);
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "Drawing"), /*#__PURE__*/_react.default.createElement("div", {
     ref: container,
     style: {
-      display: 'grid',
-      gridTemplateColumns: '1fr',
-      rowGap: '12px',
-      height: 'fit-content'
+      display: "grid",
+      gridTemplateColumns: "1fr",
+      rowGap: "12px",
+      height: "fit-content"
     }
-  }, step1 ? Grid2d(step1, 'step1') : null, step2 ? Grid2d(step2, 'step2') : null, step3 ? Grid2d(step3, 'step3') : null, step4 ? Grid2d(step4, 'step4') : null));
+  }, step1 ? Grid2d(step1, "step1") : null, step2 ? Grid2d(step2, "step2") : null, step3 ? Grid2d(step3, "step3") : null, step4 ? Grid2d(step4, "step4") : null));
 };
 
-_reactDom.default.render( /*#__PURE__*/_react.default.createElement(DrawElem, null), document.getElementById('root'));
+_reactDom.default.render( /*#__PURE__*/_react.default.createElement(DrawElem, null), document.getElementById("root"));
 },{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -29720,7 +29718,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53757" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54043" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
