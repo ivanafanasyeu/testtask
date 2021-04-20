@@ -69,20 +69,20 @@ const DrawElem = () => {
       const rowLength = image.length - 1;
       const colLength = image[0].length - 1;
 
-      let stack = [[sr, sc]];
+      let q = [[sr, sc]];
 
-      while (stack.length !== 0) {
-        let curr = stack.pop();
+      while (q.length !== 0) {
+        let curr = q.pop();
         let [row, col] = curr;
 
         if (row > 0 && image[row - 1][col] === currentColor)
-          stack.push([row - 1, col]);
+          q.push([row - 1, col]);
         if (row < rowLength && image[row + 1][col] === currentColor)
-          stack.push([row + 1, col]);
+          q.push([row + 1, col]);
         if (col > 0 && image[row][col - 1] === currentColor)
-          stack.push([row, col - 1]);
+          q.push([row, col - 1]);
         if (col < colLength && image[row][col + 1] === currentColor)
-          stack.push([row, col + 1]);
+          q.push([row, col + 1]);
 
         image[row][col] = newColor;
       }
