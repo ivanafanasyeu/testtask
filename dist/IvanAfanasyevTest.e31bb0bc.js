@@ -29656,7 +29656,8 @@ const DrawElem = () => {
       }
 
       return image;
-    };
+    }; // FIRST
+
 
     const c = canvas(20, 4);
     line(1, 2, 6, 2);
@@ -29717,7 +29718,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52581" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55047" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
