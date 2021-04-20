@@ -29638,7 +29638,7 @@ const DrawElem = () => {
     }; // 4. fill
 
 
-    var floodFill = function (image, sr, sc, newColor) {
+    const floodFill = function (image, sr, sc, newColor) {
       const currentColor = image[sr][sc];
       if (currentColor === newColor) return image;
       const rowLength = image.length - 1;
@@ -29651,8 +29651,7 @@ const DrawElem = () => {
         if (row > 0 && image[row - 1][col] === currentColor) stack.push([row - 1, col]);
         if (row < rowLength && image[row + 1][col] === currentColor) stack.push([row + 1, col]);
         if (col > 0 && image[row][col - 1] === currentColor) stack.push([row, col - 1]);
-        if (col < colLength && image[row][col + 1] === currentColor) stack.push([row, col + 1]); // Set the color
-
+        if (col < colLength && image[row][col + 1] === currentColor) stack.push([row, col + 1]);
         image[row][col] = newColor;
       }
 
@@ -29718,7 +29717,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54043" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52581" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
