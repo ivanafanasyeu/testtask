@@ -69,20 +69,20 @@ const DrawElem = () => {
       const rowLength = image.length - 1;
       const colLength = image[0].length - 1;
 
-      let q = [[sr, sc]];
+      let stack = [[sr, sc]];
 
-      while (q.length !== 0) {
-        let curr = q.pop();
+      while (stack.length !== 0) {
+        let curr = stack.pop();
         let [row, col] = curr;
 
         if (row > 0 && image[row - 1][col] === currentColor)
-          q.push([row - 1, col]);
+          stack.push([row - 1, col]);
         if (row < rowLength && image[row + 1][col] === currentColor)
-          q.push([row + 1, col]);
+          stack.push([row + 1, col]);
         if (col > 0 && image[row][col - 1] === currentColor)
-          q.push([row, col - 1]);
+          stack.push([row, col - 1]);
         if (col < colLength && image[row][col + 1] === currentColor)
-          q.push([row, col + 1]);
+          stack.push([row, col + 1]);
 
         image[row][col] = newColor;
       }
@@ -90,26 +90,26 @@ const DrawElem = () => {
       return image;
     };
 
-    const c = canvas(20, 4);
-    line(1, 2, 6, 2);
-    setStep1(copy(c));
-    line(6, 3, 6, 4, copy(c));
-    setStep2(copy(c));
-    rectangle(16, 1, 20, 3);
-    setStep3(copy(c));
-    floodFill(c, 3, 10, "o");
-    setStep4(copy(c));
+    // const c = canvas(20, 4);
+    // line(1, 2, 6, 2);
+    // setStep1(copy(c));
+    // line(6, 3, 6, 4, copy(c));
+    // setStep2(copy(c));
+    // rectangle(16, 1, 20, 3);
+    // setStep3(copy(c));
+    // floodFill(c, 3, 10, "o");
+    // setStep4(copy(c));
 
     // SECOND:
-    // const c = canvas(230, 100);
-    // line(10, 20, 60, 20);
-    // setStep1(copy(c));
-    // line(60, 30, 60, 50, copy(c));
-    // setStep2(copy(c));
-    // rectangle(60, 10, 200, 30);
-    // setStep3(copy(c));
-    // floodFill(c, 30, 100, "0");
-    // setStep4(copy(c));
+    const c = canvas(230, 100);
+    line(10, 20, 60, 20);
+    setStep1(copy(c));
+    line(60, 30, 60, 50, copy(c));
+    setStep2(copy(c));
+    rectangle(60, 10, 200, 30);
+    setStep3(copy(c));
+    floodFill(c, 30, 100, "0");
+    setStep4(copy(c));
   }, []);
 
   return (
