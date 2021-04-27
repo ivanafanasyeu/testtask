@@ -29566,12 +29566,16 @@ if ("development" === 'production') {
 } else {
   module.exports = require('./cjs/react-dom.development.js');
 }
-},{"./cjs/react-dom.development.js":"node_modules/react-dom/cjs/react-dom.development.js"}],"index.js":[function(require,module,exports) {
+},{"./cjs/react-dom.development.js":"node_modules/react-dom/cjs/react-dom.development.js"}],"input-2.txt":[function(require,module,exports) {
+module.exports = "/input-2.7f9ea258.txt";
+},{}],"index.js":[function(require,module,exports) {
 "use strict";
 
 var _react = _interopRequireWildcard(require("react"));
 
 var _reactDom = _interopRequireDefault(require("react-dom"));
+
+var _input = _interopRequireDefault(require("./input-2.txt"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -29598,7 +29602,9 @@ const Grid2d = (arr, key) => {
         height: "1rem",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+        fontWeight: c === "x" && "bold",
+        color: c === "x" && "red"
       }
     }, c)));
   }));
@@ -29606,77 +29612,88 @@ const Grid2d = (arr, key) => {
 
 const DrawElem = () => {
   const container = (0, _react.useRef)(null);
-  const [step1, setStep1] = (0, _react.useState)(undefined);
-  const [step2, setStep2] = (0, _react.useState)(undefined);
-  const [step3, setStep3] = (0, _react.useState)(undefined);
-  const [step4, setStep4] = (0, _react.useState)(undefined);
+  const [c, setC] = (0, _react.useState)(undefined);
   (0, _react.useEffect)(() => {
-    const copy = arr => JSON.parse(JSON.stringify(arr)); // 1. Создаём canvas
+    const getText = async () => {
+      const r = await fetch(_input.default);
+      const d = await r.text();
+      const operations = d.replace(/\r\n/g, "\r").replace(/\n/g, "\r").split(/\r/); // Будем считать что всегда первая строка это canvas
+
+      const canvas = (rows, cols) => {
+        return new Array(cols).fill("").map((o, i) => new Array(rows).fill(""));
+      }; // 2. Функция построения линии
 
 
-    const canvas = (rows, cols) => new Array(cols).fill("").map((o, i) => new Array(rows).fill("")); // 2. Функция построения линии
-
-
-    const line = (x1, y1, x2, y2) => {
-      if (y1 === y2) {
-        for (let i = x1; i <= x2; i++) {
-          c[y1 - 1][i - 1] = "x";
+      const line = (x1, y1, x2, y2) => {
+        if (y1 === y2) {
+          for (let i = x1; i <= x2; i++) {
+            c[y1 - 1][i - 1] = "x";
+          }
+        } else {
+          for (let i = y1; i <= y2; i++) {
+            c[i - 1][x1 - 1] = "x";
+          }
         }
-      } else {
-        for (let i = y1; i <= y2; i++) {
-          c[i - 1][x1 - 1] = "x";
+      }; // 3. Функция построения прямоугольника
+
+
+      const rectangle = (x1, y1, x2, y2) => {
+        line(x1, y1, x2, y1);
+        line(x2, y1, x2, y2);
+        line(x1, y1, x1, y2);
+        line(x1, y2, x2, y2);
+      }; // 4. fill
+
+
+      const floodFill = function (image, sr, sc, newColor) {
+        console.log(image);
+        const currentColor = image[sr][sc];
+        if (currentColor === newColor) return image;
+        const rowLength = image.length - 1;
+        const colLength = image[0].length - 1;
+        let stack = [[sr, sc]];
+
+        while (stack.length !== 0) {
+          let curr = stack.pop();
+          let [row, col] = curr;
+          if (row > 0 && image[row - 1][col] === currentColor) stack.push([row - 1, col]);
+          if (row < rowLength && image[row + 1][col] === currentColor) stack.push([row + 1, col]);
+          if (col > 0 && image[row][col - 1] === currentColor) stack.push([row, col - 1]);
+          if (col < colLength && image[row][col + 1] === currentColor) stack.push([row, col + 1]);
+          image[row][col] = newColor;
         }
+
+        return image;
+      };
+
+      const c = canvas(+operations[0].split(" ")[1], +operations[0].split(" ")[2]);
+
+      const doAction = (str, image) => {
+        let a = str.split(" ");
+
+        switch (a[0]) {
+          case "L":
+            return line(+a[1], +a[2], +a[3], +a[4]);
+
+          case "R":
+            return rectangle(+a[1], +a[2], +a[3], +a[4]);
+
+          case "B":
+            return floodFill(image, +a[2], +a[1], a[3]);
+
+          default:
+            break;
+        }
+      };
+
+      for (let i = 1; i <= operations.length - 1; i++) {
+        doAction(operations[i], c);
       }
-    }; // 3. Функция построения прямоугольника
 
+      setC(c);
+    };
 
-    const rectangle = (x1, y1, x2, y2) => {
-      line(x1, y1, x2, y1);
-      line(x2, y1, x2, y2);
-      line(x1, y1, x1, y2);
-      line(x1, y2, x2, y2);
-    }; // 4. fill
-
-
-    const floodFill = function (image, sr, sc, newColor) {
-      const currentColor = image[sr][sc];
-      if (currentColor === newColor) return image;
-      const rowLength = image.length - 1;
-      const colLength = image[0].length - 1;
-      let stack = [[sr, sc]];
-
-      while (stack.length !== 0) {
-        let curr = stack.pop();
-        let [row, col] = curr;
-        if (row > 0 && image[row - 1][col] === currentColor) stack.push([row - 1, col]);
-        if (row < rowLength && image[row + 1][col] === currentColor) stack.push([row + 1, col]);
-        if (col > 0 && image[row][col - 1] === currentColor) stack.push([row, col - 1]);
-        if (col < colLength && image[row][col + 1] === currentColor) stack.push([row, col + 1]);
-        image[row][col] = newColor;
-      }
-
-      return image;
-    }; // FIRST
-
-
-    const c = canvas(20, 4);
-    line(1, 2, 6, 2);
-    setStep1(copy(c));
-    line(6, 3, 6, 4, copy(c));
-    setStep2(copy(c));
-    rectangle(16, 1, 20, 3);
-    setStep3(copy(c));
-    floodFill(c, 3, 10, "o");
-    setStep4(copy(c)); // SECOND:
-    // const c = canvas(230, 100);
-    // line(10, 20, 60, 20);
-    // setStep1(copy(c));
-    // line(60, 30, 60, 50, copy(c));
-    // setStep2(copy(c));
-    // rectangle(60, 10, 200, 30);
-    // setStep3(copy(c));
-    // floodFill(c, 30, 100, "0");
-    // setStep4(copy(c));
+    getText();
   }, []);
   return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("h1", null, "Drawing"), /*#__PURE__*/_react.default.createElement("div", {
     ref: container,
@@ -29686,11 +29703,11 @@ const DrawElem = () => {
       rowGap: "12px",
       height: "fit-content"
     }
-  }, step1 ? Grid2d(step1, "step1") : null, step2 ? Grid2d(step2, "step2") : null, step3 ? Grid2d(step3, "step3") : null, step4 ? Grid2d(step4, "step4") : null));
+  }, c ? Grid2d(c, "c") : null));
 };
 
 _reactDom.default.render( /*#__PURE__*/_react.default.createElement(DrawElem, null), document.getElementById("root"));
-},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","react-dom":"node_modules/react-dom/index.js","./input-2.txt":"input-2.txt"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -29718,7 +29735,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55047" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54444" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

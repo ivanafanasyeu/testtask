@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import ReactDOM from "react-dom";
+import text from "./input-2.txt";
 
 const Grid2d = (arr, key) => {
   return (
@@ -16,6 +17,8 @@ const Grid2d = (arr, key) => {
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
+                  fontWeight: c === "x" && "bold",
+                  color: c === "x" && "red",
                 }}
               >
                 {c}
@@ -30,87 +33,97 @@ const Grid2d = (arr, key) => {
 
 const DrawElem = () => {
   const container = useRef(null);
-  const [step1, setStep1] = useState(undefined);
-  const [step2, setStep2] = useState(undefined);
-  const [step3, setStep3] = useState(undefined);
-  const [step4, setStep4] = useState(undefined);
+  const [c, setC] = useState(undefined);
 
   useEffect(() => {
-    const copy = (arr) => JSON.parse(JSON.stringify(arr));
-    // 1. Создаём canvas
-    const canvas = (rows, cols) =>
-      new Array(cols).fill("").map((o, i) => new Array(rows).fill(""));
+    const getText = async () => {
+      const r = await fetch(text);
+      const d = await r.text();
+      const operations = d
+        .replace(/\r\n/g, "\r")
+        .replace(/\n/g, "\r")
+        .split(/\r/);
+      // Будем считать что всегда первая строка это canvas
 
-    // 2. Функция построения линии
-    const line = (x1, y1, x2, y2) => {
-      if (y1 === y2) {
-        for (let i = x1; i <= x2; i++) {
-          c[y1 - 1][i - 1] = "x";
+      const canvas = (rows, cols) => {
+        return new Array(cols).fill("").map((o, i) => new Array(rows).fill(""));
+      };
+      // 2. Функция построения линии
+      const line = (x1, y1, x2, y2) => {
+        if (y1 === y2) {
+          for (let i = x1; i <= x2; i++) {
+            c[y1 - 1][i - 1] = "x";
+          }
+        } else {
+          for (let i = y1; i <= y2; i++) {
+            c[i - 1][x1 - 1] = "x";
+          }
         }
-      } else {
-        for (let i = y1; i <= y2; i++) {
-          c[i - 1][x1 - 1] = "x";
+      };
+      // 3. Функция построения прямоугольника
+      const rectangle = (x1, y1, x2, y2) => {
+        line(x1, y1, x2, y1);
+        line(x2, y1, x2, y2);
+        line(x1, y1, x1, y2);
+        line(x1, y2, x2, y2);
+      };
+      // 4. fill
+      const floodFill = function (image, sr, sc, newColor) {
+        console.log(image);
+        const currentColor = image[sr][sc];
+        if (currentColor === newColor) return image;
+
+        const rowLength = image.length - 1;
+        const colLength = image[0].length - 1;
+
+        let stack = [[sr, sc]];
+
+        while (stack.length !== 0) {
+          let curr = stack.pop();
+          let [row, col] = curr;
+
+          if (row > 0 && image[row - 1][col] === currentColor)
+            stack.push([row - 1, col]);
+          if (row < rowLength && image[row + 1][col] === currentColor)
+            stack.push([row + 1, col]);
+          if (col > 0 && image[row][col - 1] === currentColor)
+            stack.push([row, col - 1]);
+          if (col < colLength && image[row][col + 1] === currentColor)
+            stack.push([row, col + 1]);
+
+          image[row][col] = newColor;
         }
-      }
-    };
-    // 3. Функция построения прямоугольника
-    const rectangle = (x1, y1, x2, y2) => {
-      line(x1, y1, x2, y1);
-      line(x2, y1, x2, y2);
-      line(x1, y1, x1, y2);
-      line(x1, y2, x2, y2);
-    };
 
-    // 4. fill
-    const floodFill = function (image, sr, sc, newColor) {
-      const currentColor = image[sr][sc];
-      if (currentColor === newColor) return image;
+        return image;
+      };
 
-      const rowLength = image.length - 1;
-      const colLength = image[0].length - 1;
+      const c = canvas(
+        +operations[0].split(" ")[1],
+        +operations[0].split(" ")[2]
+      );
 
-      let stack = [[sr, sc]];
+      const doAction = (str, image) => {
+        let a = str.split(" ");
+        switch (a[0]) {
+          case "L":
+            return line(+a[1], +a[2], +a[3], +a[4]);
+          case "R":
+            return rectangle(+a[1], +a[2], +a[3], +a[4]);
+          case "B":
+            return floodFill(image, +a[2], +a[1], a[3]);
+          default:
+            break;
+        }
+      };
 
-      while (stack.length !== 0) {
-        let curr = stack.pop();
-        let [row, col] = curr;
-
-        if (row > 0 && image[row - 1][col] === currentColor)
-          stack.push([row - 1, col]);
-        if (row < rowLength && image[row + 1][col] === currentColor)
-          stack.push([row + 1, col]);
-        if (col > 0 && image[row][col - 1] === currentColor)
-          stack.push([row, col - 1]);
-        if (col < colLength && image[row][col + 1] === currentColor)
-          stack.push([row, col + 1]);
-
-        image[row][col] = newColor;
+      for (let i = 1; i <= operations.length - 1; i++) {
+        doAction(operations[i], c);
       }
 
-      return image;
+      setC(c);
     };
 
-    // FIRST
-    const c = canvas(20, 4);
-    line(1, 2, 6, 2);
-    setStep1(copy(c));
-    line(6, 3, 6, 4, copy(c));
-    setStep2(copy(c));
-    rectangle(16, 1, 20, 3);
-    setStep3(copy(c));
-    floodFill(c, 3, 10, "o");
-    setStep4(copy(c));
-
-    // SECOND:
-    // const c = canvas(230, 100);
-    // line(10, 20, 60, 20);
-    // setStep1(copy(c));
-    // line(60, 30, 60, 50, copy(c));
-    // setStep2(copy(c));
-    // rectangle(60, 10, 200, 30);
-    // setStep3(copy(c));
-    // floodFill(c, 30, 100, "0");
-    // setStep4(copy(c));
+    getText();
   }, []);
 
   return (
@@ -125,10 +138,7 @@ const DrawElem = () => {
           height: "fit-content",
         }}
       >
-        {step1 ? Grid2d(step1, "step1") : null}
-        {step2 ? Grid2d(step2, "step2") : null}
-        {step3 ? Grid2d(step3, "step3") : null}
-        {step4 ? Grid2d(step4, "step4") : null}
+        {c ? Grid2d(c, "c") : null}
       </div>
     </div>
   );
