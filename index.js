@@ -43,12 +43,12 @@ const DrawElem = () => {
         .replace(/\r\n/g, "\r")
         .replace(/\n/g, "\r")
         .split(/\r/);
-      // Будем считать что всегда первая строка это canvas
+      
 
       const canvas = (rows, cols) => {
         return new Array(cols).fill("").map((o, i) => new Array(rows).fill(""));
       };
-      // 2. Функция построения линии
+      // 2. 
       const line = (x1, y1, x2, y2) => {
         if (y1 === y2) {
           for (let i = x1; i <= x2; i++) {
@@ -60,7 +60,7 @@ const DrawElem = () => {
           }
         }
       };
-      // 3. Функция построения прямоугольника
+      // 3.
       const rectangle = (x1, y1, x2, y2) => {
         line(x1, y1, x2, y1);
         line(x2, y1, x2, y2);
